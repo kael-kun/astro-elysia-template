@@ -1,0 +1,21 @@
+{
+  "name": "astro-elysia-template",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "check": "astro check",
+    "preview": "astro preview",
+    "astro": "astro",
+    "wrangler-types": "wrangler types"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12.6.12",
+    "@elysiajs/openapi": "^1.4.14",
+    "@tailwindcss/vite": "^4.2.1",
+    "astro": "^5.17.1",
+    "elysia": "^1.4.27",
+    "tailwindcss": "^4.2.1"
+  }
+}
