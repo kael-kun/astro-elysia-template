@@ -1,9 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
+const locals = Astro.locals;
+const ENVIRONMENT = locals.runtime.env.ENV;
 ---
 
 <Layout>
 	<h1 class="text-3xl font-bold underline">
-		Astro
+		ENVIRONMENT: {ENVIRONMENT}
 	</h1>
 </Layout>
