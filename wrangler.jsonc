@@ -1,16 +1,20 @@
 {
-	"main": "dist/_worker.js/index.js",
-	"name": "astro-elysia-template",
+  "main": "dist/_worker.js/index.js",
+  "name": "astro-elysia-template",
   "compatibility_date": "2026-03-06",
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "database",
+      "database_id": "f4b42823-1462-46dc-8b05-0e3c5d4bb0a0",
+    },
   ],
-	"assets": {
-		"binding": "ASSETS",
-		"directory": "./dist"
-	},
-	"observability": {
-    "enabled": true
-  }
+  "observability": {
+    "enabled": true,
+  },
 }
