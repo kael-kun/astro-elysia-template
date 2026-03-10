@@ -41,3 +41,29 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+---
+
+1️⃣ Run Schema on Local Database
+
+Apply your schema.sql file to the local D1 database:
+
+## npx wrangler d1 execute database --local --file=schema.sql
+
+Check the tables in your local database:
+
+## npx wrangler d1 execute database --command="SELECT name FROM sqlite_master WHERE type='table';"
+
+---
+
+2️⃣ Run Schema on Remote Database
+
+Apply your schema.sql to the remote D1 database on Cloudflare:
+
+## npx wrangler d1 execute database --remote --file=schema.sql
+
+Check the tables in the remote database:
+
+## npx wrangler d1 execute database --remote --command="SELECT name FROM sqlite_master WHERE type='table';"
+
+---

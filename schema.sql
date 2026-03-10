@@ -1,6 +1,13 @@
+-- ---------------------------------------------
+-- DROP EXISTING TABLES (for local development)
+-- ---------------------------------------------
+DROP TABLE IF EXISTS users;    
+DROP TABLE IF EXISTS sessions;    
+-- ---------------------------------------------
 CREATE TABLE users (
     id TEXT PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
     password_hash TEXT NOT NULL,
     created_at INTEGER NOT NULL
 );

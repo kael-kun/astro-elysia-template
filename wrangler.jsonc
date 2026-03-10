@@ -7,11 +7,21 @@
     "binding": "ASSETS",
     "directory": "./dist",
   },
+  "ratelimits": [
+    {
+      "name": "MY_RATE_LIMITER",
+      "namespace_id": "1999",
+      "simple": {
+        "limit": 120,
+        "period": 60,
+      },
+    },
+  ],
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "database",
-      "database_id": "f4b42823-1462-46dc-8b05-0e3c5d4bb0a0",
+      "database_id": "03ba5a37-52ab-4cf0-b0f5-3f2e7ba55d2a",
     },
   ],
   "observability": {
