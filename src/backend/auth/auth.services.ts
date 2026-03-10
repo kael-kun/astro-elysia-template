@@ -2,7 +2,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import type { LoginResult, RefreshResult, User, RegisterInput, RegisterResult } from "./auth.types";
 import { generateUUID, createAccessToken, createRefreshToken, verifyRefreshToken, verifyToken } from "./auth.utils";
 import { verifyPassword, hashPassword } from "../../lib/hashpassword";
-
+import { invalidCredentials, tokenExpired, tokenInvalid, sessionNotFound, emailExists } from "../errors/AppError";
 export class AuthService {
   constructor(
     private db: D1Database,
@@ -18,12 +18,12 @@ export class AuthService {
   async login(email: string, password: string): Promise<LoginResult> {
     const user = await this.findUserByEmail(email);
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw invalidCredentials("Invalid email or password");
     }
 
     const isValidPassword = await verifyPassword(password, user.password_hash);
     if (!isValidPassword) {
-      throw new Error("Invalid email or password");
+      throw invalidCredentials("Invalid email or password");
     }
 
     const sessionId = generateUUID();
@@ -58,7 +58,7 @@ export class AuthService {
   async refresh(refreshToken: string): Promise<RefreshResult> {
     const decoded = await verifyRefreshToken(refreshToken, this.jwtRefreshSecret);
     if (!decoded) {
-      throw new Error("Invalid refresh token");
+      throw tokenInvalid("Invalid refresh token");
     }
 
     const sessionId = decoded.sid;
@@ -69,16 +69,16 @@ export class AuthService {
       .first<{ id: string; user_id: string; expires_at: number; revoked: number; refresh_token_hash: string }>();
 
     if (!session) {
-      throw new Error("Session not found or revoked");
+      throw sessionNotFound("Session not found or revoked");
     }
 
     if (Date.now() > session.expires_at) {
-      throw new Error("Refresh token expired");
+      throw tokenExpired("Refresh token expired");
     }
 
     const isValidRefreshToken = await verifyToken(refreshToken, session.refresh_token_hash);
     if (!isValidRefreshToken) {
-      throw new Error("Invalid refresh token");
+      throw tokenInvalid("Invalid refresh token");
     }
 
     const accessToken = await createAccessToken(sessionId, this.jwtSecret);
@@ -93,7 +93,7 @@ export class AuthService {
   async register(input: RegisterInput): Promise<RegisterResult> {
     const existing = await this.findUserByEmail(input.email);
     if (existing) {
-      throw new Error("Email already registered");
+      throw emailExists("Email already registered");
     }
 
     const passwordHash = await hashPassword(input.password);

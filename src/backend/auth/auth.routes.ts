@@ -3,6 +3,7 @@ import { typedEnv } from "../types/elysia";
 import { createAuthController } from "./auth.controller";
 import { verifyRefreshToken } from "./auth.utils";
 import { rateLimiter } from "../ratelimit/rate-limiter";
+import { badRequest } from "../errors/AppError";
 export function AuthRoutes() {
   const app = new Elysia({ prefix: "/auth" })
     .use(typedEnv)
@@ -55,7 +56,7 @@ export function AuthRoutes() {
       const authController = createAuthController(env);
       const refreshToken = cookie.refreshToken?.value as string;
       if (!refreshToken) {
-        throw new Error("Refresh token not found");
+        throw badRequest("Refresh token not found");
       }
       const result = await authController.refresh(refreshToken);
       return { accessToken: result.accessToken };
