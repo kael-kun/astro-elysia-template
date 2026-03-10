@@ -3,6 +3,7 @@
 ### Endpoint: POST /auth/login
 
 #### Request Body
+
 ```json
 {
   "email": "user@example.com",
@@ -11,6 +12,7 @@
 ```
 
 #### Response
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -24,6 +26,7 @@ The login endpoint will also set a refreshToken httpOnly cookie which will be us
 ### Endpoint: POST /auth/refresh
 
 #### Response
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -37,6 +40,7 @@ This endpoint generates a new access token using the refreshToken cookie.
 ### Endpoint: POST /auth/logout
 
 #### Response
+
 ```json
 {
   "success": true
