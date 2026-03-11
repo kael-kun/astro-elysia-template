@@ -1,0 +1,117 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Base from '../components/base/Base.astro';
+import Heading from '../components/base/Heading.astro';
+import Text from '../components/base/Text.astro';
+import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
+import Container from '../components/ui/Container.astro';
+import Input from '../components/ui/Input.astro';
+import Badge from '../components/ui/Badge.astro';
+import Modal from '../components/ui/Modal.astro';
+
+const locals = Astro.locals;
+const ENVIRONMENT = locals?.runtime?.env?.ENV ?? 'development';
+---
+
+<Layout>
+	<Base>
+		<Container >
+			<Heading as="h1" class="mb-8">Component Library Demo</Heading>
+			
+			<Text class="mb-4">Environment: {ENVIRONMENT}</Text>
+
+			<!-- Badges Section -->
+			<section class="mb-8">
+				<Heading as="h2" class="mb-4">Badges</Heading>
+				<div class="flex flex-wrap gap-2">
+					<Badge>Default</Badge>
+					<Badge variant="success">Success</Badge>
+					<Badge variant="warning">Warning</Badge>
+					<Badge variant="error">Error</Badge>
+					<Badge variant="info">Info</Badge>
+				</div>
+			</section>
+
+			<!-- Buttons Section -->
+			<section class="mb-8">
+				<Heading as="h2" class="mb-4">Buttons</Heading>
+				<div class="flex flex-wrap gap-4 mb-4">
+					<Button variant="primary">Primary</Button>
+					<Button variant="secondary">Secondary</Button>
+					<Button variant="outline">Outline</Button>
+					<Button variant="ghost">Ghost</Button>
+				</div>
+				<div class="flex flex-wrap gap-4">
+					<Button variant="primary" size="sm">Small</Button>
+					<Button variant="primary" size="md">Medium</Button>
+					<Button variant="primary" size="lg">Large</Button>
+				</div>
+			</section>
+
+			<!-- Input Section -->
+			<section class="mb-8">
+				<Heading as="h2" class="mb-4">Input</Heading>
+				<div class="max-w-md space-y-4">
+					<Input placeholder="Enter your name..." />
+					<Input placeholder="Required field" required />
+					<Input error="This field is required" placeholder="With error..." />
+					<Input error="Invalid email address" type="email" placeholder="Email input" />
+					<Input invalid={true} placeholder="Manually invalid" />
+				</div>
+			</section>
+
+			<!-- Card Section -->
+			<section class="mb-8">
+				<Heading as="h2" class="mb-4">Card</Heading>
+				<Card>
+					<Heading as="h3" class="mb-2">Card Title</Heading>
+					<Text>This is a card component with some content inside.</Text>
+				</Card>
+			</section>
+
+			<!-- Text Section -->
+			<section class="mb-8">
+				<Heading as="h2" class="mb-4">Text Variants</Heading>
+				<Text variant="small" class="mb-2">Small text variant</Text>
+				<Text variant="base" class="mb-2">Base text variant</Text>
+				<Text variant="large">Large text variant</Text>
+			</section>
+
+			<!-- Modal Section -->
+			<section class="mb-8">
+				<Heading as="h2" class="mb-4">Modal</Heading>
+				<div class="flex flex-wrap gap-4 mb-4">
+					<Modal id="modal-sm" title="Small Modal" size="sm" triggerLabel="Small Modal" />
+					<Modal id="modal-md" title="Medium Modal" size="md" triggerLabel="Medium Modal" />
+					<Modal id="modal-lg" title="Large Modal" size="lg" triggerLabel="Large Modal" />
+					<Modal id="modal-full" title="Full Width Modal" size="full" triggerLabel="Full Modal" />
+				</div>
+				<div class="flex flex-wrap gap-4 mb-4">
+					<Modal id="modal-with-footer" title="Modal with Footer" triggerLabel="Modal with Footer">
+						<Text class="mb-4">This modal has a footer with action buttons.</Text>
+						<Text variant="small">You can add any content here.</Text>
+						<Button slot="footer" variant="ghost" data-modal-close="modal-with-footer">Cancel</Button>
+						<Button slot="footer" variant="primary">Confirm</Button>
+					</Modal>
+				</div>
+				<!-- <div class="flex flex-wrap gap-4">
+					<Button variant="secondary" onclick="openModal('loading-modal')">Loading Modal</Button>
+					<Button variant="secondary" onclick="openModal('processing-modal')">Processing Modal</Button>
+				</div> -->
+			</section>
+		</Container>
+
+		<!-- Loading & Processing Modals -->
+		<Modal id="loading-modal" display={false} showHeader={false} loading={true} loadingText="Loading..." closeOnOverlayClick={false}>
+			<p class="text-center text-neutral-600 dark:text-neutral-400">Please wait while we fetch your data.</p>
+		</Modal>
+
+		<Modal id="processing-modal" display={false} showHeader={false} loading={true} loadingText="Processing your request..." closeOnOverlayClick={false}>
+			<div class="text-center">
+				<p class="text-neutral-600 dark:text-neutral-400 mb-2">Transaction ID: #TXN-2024-001</p>
+				<Text variant="small">This may take a few seconds...</Text>
+			</div>
+		</Modal>
+	</Base>
+</Layout>

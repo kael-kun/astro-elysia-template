@@ -1,0 +1,187 @@
+---
+import Button from './Button.astro';
+
+interface Props {
+  id: string;
+  title?: string;
+  size?: "sm" | "md" | "lg" | "full";
+  triggerLabel?: string;
+  triggerVariant?: "primary" | "secondary" | "outline" | "ghost";
+  triggerSize?: "sm" | "md" | "lg";
+  showHeader?: boolean;
+  loading?: boolean;
+  loadingText?: string;
+  display?: boolean;
+  closeOnOverlayClick?: boolean;
+  closeOnEscape?: boolean;
+}
+
+const {
+  id,
+  title,
+  size = "md",
+  triggerLabel,
+  triggerVariant = "primary",
+  triggerSize = "md",
+  showHeader = true,
+  loading = false,
+  loadingText,
+  display = false,
+  closeOnOverlayClick = true,
+  closeOnEscape = true,
+} = Astro.props;
+
+const sizes = {
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+  full: "max-w-4xl",
+};
+
+const triggerClasses = {
+  primary: "bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200",
+  secondary: "bg-neutral-100 text-neutral-900 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-700",
+  outline: "border border-neutral-300 text-neutral-700 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800",
+  ghost: "text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800",
+};
+
+const triggerSizes = {
+  sm: "px-3 py-1.5 text-sm",
+  md: "px-4 py-2 text-base",
+  lg: "px-6 py-3 text-lg",
+};
+---
+
+{triggerLabel && (
+  <Button variant={triggerVariant} size={triggerSize} data-modal-trigger={id}>
+    {triggerLabel}
+  </Button>
+)}
+
+<div
+  id={`${id}-backdrop`}
+  class:list={[
+    "fixed inset-0 z-50 bg-black/50",
+    display ? "flex items-center justify-center" : "hidden"
+  ]}
+  data-modal-backdrop={id}
+  data-close-on-overlay-click={closeOnOverlayClick}
+  data-close-on-escape={closeOnEscape}
+>
+  <div
+    id={id}
+    class:list={[
+      "relative w-full mx-4 bg-white dark:bg-neutral-900 rounded-lg shadow-xl",
+      sizes[size]
+    ]}
+    role="dialog"
+    aria-modal="true"
+  >
+    {showHeader && (title || Astro.slots.has("footer")) && (
+      <div class="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-700">
+        {title && <h3 class="text-lg font-semibold">{title}</h3>}
+        <Button variant="ghost" size="sm" data-modal-close={id} aria-label="Close modal">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </Button>
+      </div>
+    )}
+
+    <div class="p-6">
+      {loading && (
+        <div class="flex flex-col items-center justify-center py-4">
+          <svg class="animate-spin h-8 w-8 text-neutral-600 dark:text-neutral-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {loadingText && (
+            <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-400 text-center">{loadingText}</p>
+          )}
+        </div>
+      )}
+      <slot />
+    </div>
+
+    {Astro.slots.has("footer") && (
+      <div class="flex items-center justify-end gap-2 p-4 border-t border-neutral-200 dark:border-neutral-700">
+        <slot name="footer" />
+      </div>
+    )}
+  </div>
+</div>
+
+<script is:inline>
+  function openModal(id) {
+    const backdrop = document.querySelector(`[data-modal-backdrop="${id}"]`);
+    if (backdrop) {
+      backdrop.classList.remove("hidden");
+      backdrop.classList.add("flex", "items-center", "justify-center");
+      document.body.style.overflow = "hidden";
+    }
+  }
+
+  function closeModal(id) {
+    const backdrop = document.querySelector(`[data-modal-backdrop="${id}"]`);
+    if (backdrop) {
+      backdrop.classList.remove("flex", "items-center", "justify-center");
+      backdrop.classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+  }
+
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+</script>
+
+<script>
+  declare global {
+    interface Window {
+      openModal: (id: string) => void;
+      closeModal: (id: string) => void;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", initModals);
+  document.addEventListener("astro:page-load", initModals);
+
+  function initModals() {
+    document.querySelectorAll("[data-modal-backdrop]").forEach((backdrop) => {
+      const modalId = backdrop.getAttribute("data-modal-backdrop");
+      if (!modalId) return;
+
+      const closeOnOverlay = backdrop.getAttribute("data-close-on-overlay-click") !== "false";
+      const closeOnEscape = backdrop.getAttribute("data-close-on-escape") !== "false";
+
+      const closeModal = () => {
+        backdrop.classList.remove("flex", "items-center", "justify-center");
+        backdrop.classList.add("hidden");
+        document.body.style.overflow = "";
+      };
+
+      const trigger = document.querySelector(`[data-modal-trigger="${modalId}"]`);
+      if (trigger) {
+        trigger.addEventListener("click", () => {
+          if (window.openModal) window.openModal(modalId);
+        });
+      }
+
+      backdrop.addEventListener("click", (e) => {
+        if (e.target === backdrop && closeOnOverlay) {
+          closeModal();
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !backdrop.classList.contains("hidden") && closeOnEscape) {
+          closeModal();
+        }
+      });
+
+      const closeBtn = backdrop.querySelector(`[data-modal-close="${modalId}"]`);
+      if (closeBtn) {
+        closeBtn.addEventListener("click", closeModal);
+      }
+    });
+  }
+</script>

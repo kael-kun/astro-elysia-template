@@ -1,0 +1,18 @@
+---
+interface Props {
+  variant?: "small" | "base" | "large";
+  class?: string;
+}
+
+const { variant = "base", class: className } = Astro.props;
+
+const variants = {
+  small: "text-sm",
+  base: "text-base",
+  large: "text-lg",
+};
+---
+
+<p class:list={["text-neutral-600 dark:text-neutral-400", variants[variant], className]}>
+  <slot />
+</p>
