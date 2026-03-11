@@ -16,6 +16,11 @@
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^5.17.1",
     "elysia": "^1.4.27",
+    "jose": "^6.2.1",
     "tailwindcss": "^4.2.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.7",
+    "typescript": "^5.9.3"
   }
 }

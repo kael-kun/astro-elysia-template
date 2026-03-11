@@ -1,5 +1,12 @@
 ---
 import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  skipAuth?: boolean;
+}
+
+const { skipAuth = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -10,9 +17,17 @@ import '../styles/global.css';
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>astro-elysia</title>
+		<title>{Astro.props.title || 'astro-elysia'}</title>
 	</head>
-	<body>
+	<body data-skip-auth={skipAuth}>
 		<slot />
 	</body>
 </html>
+
+<script>
+	import { initAuth } from '../lib/initAuth';
+	const skipAuth = document.body.dataset.skipAuth === 'true';
+	if (!skipAuth) {
+		initAuth();
+	}
+</script>
