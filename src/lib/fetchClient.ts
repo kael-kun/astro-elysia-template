@@ -4,8 +4,6 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || window.location.origin;
 
 async function getAuthHeaders(): Promise<Record<string, string>> {
   const token = await authStore.getAccessToken();
-  console.log("dito sa fetch client");
-  console.log(token);
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
