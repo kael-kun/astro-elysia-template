@@ -1,5 +1,5 @@
 import type { AuthService } from "./auth.services";
-import type { LoginResult, RefreshResult, RegisterInput, RegisterResult } from "./auth.types";
+import type { AuthUser, LoginResult, RefreshResult, RegisterInput, RegisterResult } from "./auth.types";
 import { createAuthService } from "./auth.services";
 
 export class AuthController {
@@ -19,6 +19,10 @@ export class AuthController {
 
   async logout(sessionId: string): Promise<void> {
     return this.authService.revokeSession(sessionId);
+  }
+
+  async getProfile(sessionId: string): Promise<AuthUser> {
+    return this.authService.getProfile(sessionId);
   }
 
   async register(input: RegisterInput): Promise<RegisterResult> {

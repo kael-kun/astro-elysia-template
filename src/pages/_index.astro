@@ -118,8 +118,7 @@ const ENVIRONMENT = locals?.runtime?.env?.ENV ?? 'development';
 </Layout>
 
 <script>
-	import { authReady, getAccessToken } from "../lib/authStore";
+	import { getAccessToken } from "../lib/authStore";
 	
-	await authReady;
 	// console.log(getAccessToken());
 </script>

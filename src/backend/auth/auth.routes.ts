@@ -1,7 +1,7 @@
 import Elysia, { t } from "elysia";
 import { typedEnv } from "../types/elysia";
 import { createAuthController } from "./auth.controller";
-import { verifyRefreshToken } from "./auth.utils";
+import { verifyRefreshToken, verifyAccessToken, parseAuthHeader } from "./auth.utils";
 import { rateLimiter } from "../ratelimit/rate-limiter";
 import { badRequest } from "../errors/AppError";
 export function AuthRoutes() {
@@ -61,7 +61,7 @@ export function AuthRoutes() {
       const result = await authController.refresh(refreshToken);
       return { accessToken: result.accessToken };
     })
-    .post("/logout", async ({ env, cookie }) => {
+    .get("/logout", async ({ env, cookie }) => {
       const authController = createAuthController(env);
       const refreshToken = cookie.refreshToken?.value as string;
 
@@ -74,6 +74,22 @@ export function AuthRoutes() {
 
       cookie.refreshToken.remove();
       return { success: true };
+    })
+    .get("/profile", async ({ env, headers }) => {
+      const authController = createAuthController(env);
+      const token = parseAuthHeader(headers.authorization);
+
+      if (!token) {
+        throw badRequest("Access token not found");
+      }
+
+      const decoded = await verifyAccessToken(token, env.JWT_SECRET);
+      if (!decoded) {
+        throw badRequest("Invalid access token");
+      }
+
+      const profile = await authController.getProfile(decoded.sid);
+      return { user: profile };
     });
   return app;
 }

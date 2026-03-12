@@ -1,22 +1,83 @@
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+}
+
 let accessToken: string | null = null;
-let isReady = false;
-let readyResolve: (() => void) | null = null;
-export const authReady = new Promise<void>((resolve) => {
-  readyResolve = resolve;
-});
+let profile: UserProfile | null = null;
+let initialized = false;
 
-export function setAccessToken(token: string | null): void {
-  accessToken = token;
-  if (!isReady) {
-    isReady = true;
-    readyResolve?.();
-  }
-}
+export const authStore = {
+  setAuth(token: string) {
+    accessToken = token;
+  },
 
-export function getAccessToken(): string | null {
-  return accessToken;
-}
+  setProfile(profileData: UserProfile) {
+    profile = profileData;
+  },
 
-export function clearAccessToken(): void {
-  accessToken = null;
-}
+  async getAccessToken() {
+    if (!initialized) {
+      await this.init();
+    }
+    return accessToken;
+  },
+
+  async getProfile() {
+    if (!initialized) {
+      await this.init();
+    }
+    return profile;
+  },
+
+  clear() {
+    accessToken = null;
+    profile = null;
+    initialized = false;
+  },
+
+  isAuthenticated() {
+    return accessToken !== null;
+  },
+
+  async init() {
+    if (initialized) return;
+
+    try {
+      const origin = window.location.origin;
+      const response = await fetch(`${origin}/api/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = (await response.json()) as { accessToken?: string };
+        if (data.accessToken) {
+          accessToken = data.accessToken;
+        }
+      }
+
+      if (accessToken) {
+        const response = await fetch(`${origin}/api/auth/profile`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = (await response.json()) as { user?: UserProfile };
+          console.log(data);
+          if (data.user) {
+            profile = data.user;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to initialize auth:", error);
+    }
+
+    initialized = true;
+  },
+};

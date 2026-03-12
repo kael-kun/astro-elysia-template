@@ -1,5 +1,5 @@
 import type { D1Database } from "@cloudflare/workers-types";
-import type { LoginResult, RefreshResult, User, RegisterInput, RegisterResult } from "./auth.types";
+import type { AuthUser, LoginResult, RefreshResult, User, RegisterInput, RegisterResult } from "./auth.types";
 import { generateUUID, createAccessToken, createRefreshToken, verifyRefreshToken, verifyToken } from "./auth.utils";
 import { verifyPassword, hashPassword } from "../../lib/hashpassword";
 import { invalidCredentials, tokenExpired, tokenInvalid, sessionNotFound, emailExists } from "../errors/AppError";
@@ -88,6 +88,36 @@ export class AuthService {
 
   async revokeSession(sessionId: string): Promise<void> {
     await this.db.prepare("UPDATE sessions SET revoked = 1 WHERE id = ?").bind(sessionId).run();
+  }
+
+  async getProfile(sessionId: string): Promise<AuthUser> {
+    const session = await this.db
+      .prepare("SELECT * FROM sessions WHERE id = ? AND revoked = 0")
+      .bind(sessionId)
+      .first<{ id: string; user_id: string; expires_at: number; revoked: number }>();
+
+    if (!session) {
+      throw sessionNotFound("Session not found or revoked");
+    }
+
+    if (Date.now() > session.expires_at) {
+      throw tokenExpired("Session expired");
+    }
+
+    const user = await this.db
+      .prepare("SELECT id, email, name FROM users WHERE id = ?")
+      .bind(session.user_id)
+      .first<AuthUser>();
+
+    if (!user) {
+      throw sessionNotFound("User not found");
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
   }
 
   async register(input: RegisterInput): Promise<RegisterResult> {

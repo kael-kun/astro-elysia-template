@@ -1,10 +1,11 @@
-import { getAccessToken, setAccessToken, clearAccessToken } from "./authStore";
-import { clearAuthCache } from "./initAuth";
+import { authStore } from "./authStore";
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_URL || window.location.origin;
 
-function getAuthHeaders(): Record<string, string> {
-  const token = getAccessToken();
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const token = await authStore.getAccessToken();
+  console.log("dito sa fetch client");
+  console.log(token);
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -30,7 +31,8 @@ async function refreshToken(): Promise<boolean> {
     if (!res.ok) return false;
 
     const data = (await res.json()) as { accessToken: string };
-    setAccessToken(data.accessToken);
+
+    authStore.setAuth(data.accessToken);
     return true;
   } catch {
     return false;
@@ -38,7 +40,7 @@ async function refreshToken(): Promise<boolean> {
 }
 
 async function authenticatedFetch(input: string, init: RequestInit = {}, retryCount = 0): Promise<Response> {
-  const defaultHeaders = getAuthHeaders();
+  const defaultHeaders = await getAuthHeaders();
   const { redirectOnUnauthorized = true, ...restInit } = init as RequestInit & { redirectOnUnauthorized?: boolean };
   const headers = new Headers(restInit.headers || {});
 
@@ -65,7 +67,7 @@ async function authenticatedFetch(input: string, init: RequestInit = {}, retryCo
         const errorData = await response.json();
         const extractedMessage = getErrorMessage(errorData);
         errorMessage = extractedMessage || errorMessage;
-        if (typeof errorData === 'object' && errorData !== null) {
+        if (typeof errorData === "object" && errorData !== null) {
           errorCode = (errorData as Record<string, unknown>).errorCode as number | undefined;
         }
       } catch {
@@ -83,8 +85,6 @@ async function authenticatedFetch(input: string, init: RequestInit = {}, retryCo
           }
         }
 
-        clearAccessToken();
-        clearAuthCache();
         if (redirectOnUnauthorized) {
           window.location.replace("/auth/login");
         }
@@ -101,7 +101,7 @@ async function authenticatedFetch(input: string, init: RequestInit = {}, retryCo
       }
 
       const error = new Error(errorMessage);
-      Object.defineProperty(error, 'errorCode', { value: errorCode, writable: true, enumerable: true });
+      Object.defineProperty(error, "errorCode", { value: errorCode, writable: true, enumerable: true });
       throw error;
     }
 
